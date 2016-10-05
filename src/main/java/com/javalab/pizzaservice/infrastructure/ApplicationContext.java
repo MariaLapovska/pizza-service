@@ -1,6 +1,7 @@
 package com.javalab.pizzaservice.infrastructure;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class ApplicationContext implements Context {
             }
         }
 
-        private Object[] getConstructorArgs(Constructor<?> constructor) {
+        private Object[] getConstructorArgs(Constructor<?> constructor) throws Exception  {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             Object params[] = new Object[parameterTypes.length];
 
@@ -77,6 +78,38 @@ public class ApplicationContext implements Context {
         private <T> T build() {
             return (T) bean;
         }
+
+        public void callInitMethod() throws Exception {
+            Class<?> clazz = bean.getClass();
+            Method method;
+
+            try {
+                method = clazz.getMethod("init");
+            } catch (NoSuchMethodException ex) {
+                return;
+            }
+
+            method.invoke(bean);
+        }
+
+        private void callPostCreateMethod() {
+            Class<?> type = config.getImpl(beanName);
+
+            for (Method method : type.getMethods()) {
+                if (method.isAnnotationPresent(PostCreate.class)) {
+                    try {
+                        method.invoke(bean);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+
+        public void createBeanProxy() {
+            // implement
+            // Proxy.newProxyInstance
+        }
     }
 
     public ApplicationContext(Config config) {
@@ -85,7 +118,7 @@ public class ApplicationContext implements Context {
     }
 
     @Override
-    public <T> T getBean(String beanName) {
+    public <T> T getBean(String beanName) throws Exception  {
         Object bean = beans.get(beanName);
 
         if (bean != null) {
@@ -93,7 +126,11 @@ public class ApplicationContext implements Context {
         }
 
         BeanBuilder builder = new BeanBuilder(beanName);
+
         builder.createBean();
+        builder.callPostCreateMethod();
+        builder.callInitMethod();
+        builder.createBeanProxy();
 
         bean = builder.build();
         beans.put(beanName, bean);

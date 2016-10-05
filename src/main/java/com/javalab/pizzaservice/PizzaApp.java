@@ -12,9 +12,10 @@ import com.javalab.pizzaservice.services.OrderService;
  */
 public class PizzaApp {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Customer customer = new Customer("Ivan Ivanov");
         Context context = new ApplicationContext(new JavaConfig());
+
         OrderService orderService = context.getBean("orderService");
 
         Order order = orderService.placeNewOrder(customer, 0, 1, 2);
