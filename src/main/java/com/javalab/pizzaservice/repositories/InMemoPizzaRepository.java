@@ -13,7 +13,7 @@ public class InMemoPizzaRepository implements PizzaRepository {
 
     private final static Map<Integer, Pizza> pizzas = new HashMap<>();
 
-    static {
+    public void init() {
         pizzas.put(0, new Pizza("Hawaii", 80.32, PizzaType.VEGETARIAN));
         pizzas.put(1, new Pizza("Meat Heaven", 100.32, PizzaType.MEAT));
         pizzas.put(2, new Pizza("Fishy", 111., PizzaType.SEA));
