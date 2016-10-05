@@ -12,9 +12,11 @@ import java.util.Map;
  * @author Mariia Lapovska
  */
 public class JavaConfig implements Config {
-    private final Map<String,Class<?>> classes = new HashMap<>();
+    private final Map<String,Class<?>> classes;
 
-    {
+    public JavaConfig() {
+        classes = new HashMap<>();
+
         classes.put("pizzaRepository", InMemoPizzaRepository.class);
         classes.put("orderRepository", InMemoOrderRepository.class);
         classes.put("pizzaService", SimplePizzaService.class);
@@ -22,7 +24,7 @@ public class JavaConfig implements Config {
     }
 
     @Override
-    public Class<?> getImpl(String name) {
+    public Class<?> getImplementation(String name) {
         return classes.get(name);
     }
 }

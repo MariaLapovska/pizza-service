@@ -2,6 +2,7 @@ package com.javalab.pizzaservice.repositories;
 
 import com.javalab.pizzaservice.domain.Pizza;
 import com.javalab.pizzaservice.domain.PizzaType;
+import com.javalab.pizzaservice.infrastructure.PostCreate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +12,13 @@ import java.util.Map;
  */
 public class InMemoPizzaRepository implements PizzaRepository {
 
-    private final static Map<Integer, Pizza> pizzas = new HashMap<>();
+    private final Map<Integer, Pizza> pizzas;
 
+    public InMemoPizzaRepository() {
+        pizzas = new HashMap<>();
+    }
+
+    @PostCreate
     public void init() {
         pizzas.put(0, new Pizza("Hawaii", 80.32, PizzaType.VEGETARIAN));
         pizzas.put(1, new Pizza("Meat Heaven", 100.32, PizzaType.MEAT));

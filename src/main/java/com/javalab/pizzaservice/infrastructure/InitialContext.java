@@ -8,7 +8,7 @@ public class InitialContext {
     private static Config config = new JavaConfig();
 
     public <T> T getInstance(String name) {
-        Class<?> type = config.getImpl(name);
+        Class<?> type = config.getImplementation(name);
         try {
             return (T) type.newInstance();
         } catch (Exception ex) {

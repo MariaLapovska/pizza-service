@@ -9,7 +9,11 @@ import java.util.List;
  * @author Mariia Lapovska
  */
 public class InMemoOrderRepository implements OrderRepository {
-    private List<Order> orders = new ArrayList<>();
+    private List<Order> orders;
+
+    public InMemoOrderRepository() {
+        orders = new ArrayList<>();
+    }
 
     @Override
     public void saveOrder(Order order) {

@@ -1,6 +1,7 @@
 package com.javalab.pizzaservice.services;
 
 import com.javalab.pizzaservice.domain.*;
+import com.javalab.pizzaservice.infrastructure.Benchmark;
 import com.javalab.pizzaservice.repositories.InMemoOrderRepository;
 import com.javalab.pizzaservice.repositories.OrderRepository;
 
@@ -20,6 +21,7 @@ public class SimpleOrderService implements OrderService {
     }
 
     @Override
+    @Benchmark(false)
     public Order placeNewOrder(Customer customer, Integer... pizzasID) {
         List<Pizza> pizzas = new ArrayList<>();
 
