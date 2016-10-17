@@ -9,10 +9,12 @@ public class Customer {
 
     private int id;
     private String name;
+    private String deliveryAddress;
 
-    public Customer(String name) {
+    public Customer(String name, String deliveryAddress) {
         id = nextId++;
         this.name = name;
+        this.deliveryAddress = deliveryAddress;
     }
 
     public int getId() {
@@ -27,8 +29,16 @@ public class Customer {
         this.name = name;
     }
 
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
     @Override
     public String toString() {
-        return id + " " + name;
+        return id + " " + name + " " + deliveryAddress;
     }
 }

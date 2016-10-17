@@ -48,6 +48,21 @@ public class Pizza {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (! (o instanceof Pizza)) {
+            return false;
+        }
+
+        Pizza that = (Pizza) o;
+
+        return name.equals(that.name) && price == that.price && pizzaType
+                .equals(that.pizzaType);
+    }
+
+    @Override
     public String toString() {
         return id + " " + name + " " + price + " " + pizzaType;
     }
