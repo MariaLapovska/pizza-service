@@ -24,7 +24,8 @@ public class Customer implements Serializable {
 
     private String name;
 
-    private String address;
+    @OneToOne
+    private Address address;
 
     @OneToOne
     private MemberCard memberCard;
@@ -32,7 +33,8 @@ public class Customer implements Serializable {
     public Customer() {
     }
 
-    public Customer(Integer id, String name, String address, MemberCard memberCard) {
+    public Customer(Integer id, String name, Address address, MemberCard
+            memberCard) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -55,11 +57,11 @@ public class Customer implements Serializable {
         this.name = name;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 
