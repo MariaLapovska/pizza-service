@@ -9,31 +9,27 @@ import java.time.LocalDate;
  * @author Mariia Lapovska
  */
 @Entity
-@Table(name = "CARD")
+@Table
 public class MemberCard implements Serializable {
 
-    @TableGenerator(
-            name = "cardGen",
-            table = "CARD_ID_GEN",
-            pkColumnName = "GEN_KEY",
-            valueColumnName = "GEN_VALUE",
-            pkColumnValue = "CARD_ID"
-    )
+    @TableGenerator(name = "cardGen")
 
     @Id
     @GeneratedValue(generator = "cardGen")
     private Integer id;
 
-    private LocalDate date;
+    @Column(nullable = false)
+    private LocalDate issueDate;
 
+    @Column(nullable = false)
     private BigDecimal balance;
 
     public MemberCard() {
     }
 
-    public MemberCard(Integer id, LocalDate date, BigDecimal balance) {
+    public MemberCard(Integer id, LocalDate issueDate, BigDecimal balance) {
         this.id = id;
-        this.date = date;
+        this.issueDate = issueDate;
         this.balance = balance;
     }
 
@@ -53,11 +49,15 @@ public class MemberCard implements Serializable {
         this.balance = balance;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public void addToBalance(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
+
+    public void setIssueDate(LocalDate issueDate) {
+        this.issueDate = issueDate;
     }
 }

@@ -7,21 +7,16 @@ import java.io.Serializable;
  * @author Mariia Lapovska
  */
 @Entity
-@Table(name = "CUSTOMER")
+@Table
 public class Customer implements Serializable {
 
-    @TableGenerator(
-            name = "customerGen",
-            table = "CUSTOMER_ID_GEN",
-            pkColumnName = "GEN_KEY",
-            valueColumnName = "GEN_VALUE",
-            pkColumnValue = "CUSTOMER_ID"
-    )
+    @TableGenerator(name = "customerGen")
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "customerGen")
     private Integer id;
 
+    @Column(nullable = false)
     private String name;
 
     @OneToOne

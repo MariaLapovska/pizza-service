@@ -1,6 +1,8 @@
 package com.projects.pizzaservice.services;
 
 import com.projects.pizzaservice.domain.Pizza;
+import com.projects.pizzaservice.repository.PizzaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,8 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class SimplePizzaService implements PizzaService {
 
+    private final PizzaRepository pizzaRepository;
+
+    @Autowired
+    public SimplePizzaService(PizzaRepository pizzaRepository) {
+        this.pizzaRepository = pizzaRepository;
+    }
+
     @Override
-    public Pizza getPizzaByID(Integer id) {
-        return null;
+    public Pizza findPizzaById(Integer id) {
+        return pizzaRepository.find(id);
     }
 }

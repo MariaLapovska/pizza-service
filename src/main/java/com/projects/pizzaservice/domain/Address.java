@@ -7,27 +7,25 @@ import java.io.Serializable;
  * @author Mariia Lapovska
  */
 @Entity
-@Table(name = "ADDRESS")
+@Table
 public class Address implements Serializable {
 
-    @TableGenerator(
-            name = "addressGen",
-            table = "ADDRESS_ID_GEN",
-            pkColumnName = "GEN_KEY",
-            valueColumnName = "GEN_VALUE",
-            pkColumnValue = "ADDRESS_ID"
-    )
+    @TableGenerator(name = "addressGen")
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "addressGen")
     private Integer id;
 
+    @Column(nullable = false)
     private String country;
 
+    @Column(nullable = false)
     private String city;
 
+    @Column(nullable = false)
     private String street;
 
+    @Column(nullable = false)
     private Integer apartment;
 
     public Address() {

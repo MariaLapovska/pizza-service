@@ -8,26 +8,29 @@ import java.math.BigDecimal;
  * @author Mariia Lapovska
  */
 @Entity
-@Table(name = "PIZZA")
+@Table
+@NamedQueries({
+        @NamedQuery(name = "Pizza.findAll",
+                query = "SELECT p FROM Pizza p"),
+        @NamedQuery(name = "Pizza.findAllByType",
+                query = "SELECT p FROM Pizza p WHERE p.type = :type")
+})
 public class Pizza implements Serializable {
 
-    @TableGenerator(
-            name = "pizzaGen",
-            table = "PIZZA_ID_GEN",
-            pkColumnName = "GEN_KEY",
-            valueColumnName = "GEN_VALUE",
-            pkColumnValue = "PIZZA_ID"
-    )
+    @TableGenerator(name = "pizzaGen")
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "pizzaGen")
     private Integer id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Type type;
 
     public enum Type {

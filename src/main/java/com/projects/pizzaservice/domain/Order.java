@@ -4,12 +4,6 @@ package com.projects.pizzaservice.domain;
 
 - включить возможность добавлять в заказ определённое число пицц:
 от 1 до 10 пицц (в сумме)
-- подсчет стоимости заказа
-- скидка в 30% на самую дорогую пиццу в заказе, если количество пицц больше 4-х
-- стоимость заказа должна заноситься на накопительную карту пользователя если она есть
-- из стоимости заказа вычитается 10% от общей суммы на накопительной карте,
-но не больше чем 30% стоимости заказа
-
 */
 
 import org.springframework.context.annotation.Scope;
@@ -17,12 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,16 +21,10 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 @Entity
-@Table(name = "ORDER")
+@Table
 public class Order implements Serializable {
 
-    @TableGenerator(
-            name = "orderGen",
-            table = "ORDER_ID_GEN",
-            pkColumnName = "GEN_KEY",
-            valueColumnName = "GEN_VALUE",
-            pkColumnValue = "ORDER_ID"
-    )
+    @TableGenerator(name = "orderGen")
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "orderGen")
@@ -54,8 +37,10 @@ public class Order implements Serializable {
     @CollectionTable
     @MapKeyClass(Pizza.class)
     @MapKeyColumn(name = "pizza_id")
-    @Column(name="amount")
-    private Map<Pizza, Long> pizzas;
+    @Column
+    private Map<Pizza, Integer> pizzas;
+
+    private BigDecimal discountAmount;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -82,20 +67,35 @@ public class Order implements Serializable {
 
     public Order(Integer id, Customer customer, List<Pizza> pizzas) {
         this.status = Status.NEW;
+        this.discountAmount = BigDecimal.ZERO;
         this.id = id;
         this.customer = customer;
-        this.pizzas = pizzas.stream().collect(
-                Collectors.groupingBy(
-                        Function.identity(), Collectors.counting()
-                )
-        );
+        setPizzas(pizzas);
+    }
+
+    public void addToDiscountAmount(BigDecimal amountToAdd) {
+        discountAmount = discountAmount.add(amountToAdd);
+    }
+
+    public BigDecimal getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void addPizzas(Pizza pizza, Integer amount) {
+        pizzas.merge(pizza, amount, Integer::sum);
+    }
+
+    public int getPizzasQuantity() {
+        return pizzas.values().stream().mapToInt(Integer::intValue).sum();
+    }
+
+    public Map<Pizza, Integer> getPizzas() {
+        return pizzas;
     }
 
     public void setPizzas(List<Pizza> pizzas) {
         this.pizzas = pizzas.stream().collect(
-                Collectors.groupingBy(
-                        Function.identity(), Collectors.counting()
-                )
+                Collectors.toMap(s -> s, s -> 1, Integer::sum)
         );
     }
 
@@ -105,15 +105,11 @@ public class Order implements Serializable {
 
     public boolean setStatus(Status newStatus) {
         if (this.status.isTransmutableTo(newStatus)) {
-            if (Status.DONE.equals(newStatus)) {
-                MemberCard card = customer.getMemberCard();
-                if (card != null) {
-                    card.setBalance(card.getBalance().add(getPrice()));
-                }
-            }
             this.status = newStatus;
+
             return true;
         }
+
         return false;
     }
 
@@ -142,63 +138,27 @@ public class Order implements Serializable {
                 '}';
     }
 
-    public BigDecimal getPrice() {
-        BigDecimal price = new BigDecimal(0);
+    public boolean depositTotalOnMemberCard() {
+        if (customer.getMemberCard() != null) {
+            customer.getMemberCard().addToBalance(getTotalWithDiscount());
 
-        if (pizzas.size() > 4) {
-            price = getPriceWithMostExpensivePizzaDiscounted();
-        } else if (pizzas.size() > 0){
-            price = getOrdinaryPrice();
+            return true;
         }
 
-        return loyalCustomerDiscount(price).stripTrailingZeros();
+        return false;
     }
 
-    private BigDecimal loyalCustomerDiscount(BigDecimal price) {
-        MemberCard card = customer.getMemberCard();
-        if (card != null) {
-            BigDecimal tenPercentOfCard = percent("0.10", card.getBalance());
-            BigDecimal thirtyPercentOfPrice = percent("0.30", price);
-            if (thirtyPercentOfPrice.compareTo(tenPercentOfCard) < 0) {
-                return price.subtract(thirtyPercentOfPrice);
-            } else {
-                return price.subtract(tenPercentOfCard);
-            }
+    public BigDecimal getTotal() {
+        BigDecimal price = BigDecimal.ZERO;
+
+        for (Map.Entry<Pizza, Integer> pizzaEntry : pizzas.entrySet()) {
+            price = price.add(pizzaEntry.getKey().getPrice().multiply(new BigDecimal(pizzaEntry.getValue())));
         }
+
         return price;
     }
 
-    private BigDecimal percent(String rate, BigDecimal amount) {
-        return amount.multiply(new BigDecimal(rate));
-    }
-
-    private BigDecimal getOrdinaryPrice() {
-        BigDecimal price = new BigDecimal(0);
-        for (Pizza pizza : pizzas.keySet()) {
-            price = price.add(pizza.getPrice().multiply(new BigDecimal(pizzas.get(pizza))));
-        }
-        return price;
-    }
-
-    private BigDecimal getPriceWithMostExpensivePizzaDiscounted() {
-        Pizza mostExpensivePizza = getMostExpensivePizza();
-        BigDecimal price = getOrdinaryPrice();
-        return price.subtract(discount("0.3", mostExpensivePizza));
-    }
-
-    private BigDecimal discount(String discountRate, Pizza mostExpensivePizza) {
-        return mostExpensivePizza.getPrice().multiply(new BigDecimal(discountRate))
-                .round(new MathContext(2, RoundingMode.UP));
-    }
-
-    private Pizza getMostExpensivePizza() {
-        List<Pizza> pizzas = new ArrayList<>(this.pizzas.keySet());
-        Pizza mostExpensivePizza = pizzas.get(0);
-        for (Pizza pizza : pizzas) {
-            if (pizza.getPrice().compareTo(mostExpensivePizza.getPrice()) > 0) {
-                mostExpensivePizza = pizza;
-            }
-        }
-        return mostExpensivePizza;
+    public BigDecimal getTotalWithDiscount() {
+        return getTotal().subtract(discountAmount);
     }
 }

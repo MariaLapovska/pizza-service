@@ -6,6 +6,5 @@ import java.math.BigDecimal;
  * @author Mariia Lapovska
  */
 public interface Discount {
-
-    BigDecimal applyDiscount(Order order);
+    BigDecimal calculateDiscount(Order order);
 }
