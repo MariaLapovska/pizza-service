@@ -12,7 +12,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +21,10 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 @Entity
 @Table
+@NamedQueries({
+        @NamedQuery(name = "Order.findAll",
+                query = "SELECT o FROM Order o")
+})
 public class Order implements Serializable {
 
     @TableGenerator(name = "orderGen")
@@ -51,7 +54,7 @@ public class Order implements Serializable {
         CANCELLED(),
         DONE();
 
-        private List<String> allowedTransitions;
+        private final List<String> allowedTransitions;
 
         Status(String ... statuses) {
             this.allowedTransitions = Arrays.asList(statuses);
