@@ -6,6 +6,7 @@ import com.projects.pizzaservice.domain.Order;
 import com.projects.pizzaservice.domain.Pizza;
 import com.projects.pizzaservice.infrastructure.Benchmark;
 import com.projects.pizzaservice.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class SimpleOrderService implements OrderService {
     private final PizzaService pizzaService;
     private final DiscountManager discountManager;
 
+    @Autowired
     public SimpleOrderService(OrderRepository orderRepository, PizzaService pizzaService, DiscountManager discountManager) {
         this.orderRepository = orderRepository;
         this.pizzaService = pizzaService;
