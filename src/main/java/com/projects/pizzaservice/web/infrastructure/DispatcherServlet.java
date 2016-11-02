@@ -14,11 +14,11 @@ import javax.servlet.http.*;
 public class DispatcherServlet extends HttpServlet {
 
     private ConfigurableApplicationContext webContext;
-    private ConfigurableApplicationContext[] applicationContexts;
+   // private ConfigurableApplicationContext[] applicationContexts;
 
     @Override
     public void init() throws ServletException {
-        String[] contexts = getServletContext()
+       /* String[] contexts = getServletContext()
                 .getInitParameter("contextConfigLocation").split(" ");
         int length = contexts.length;
         this.applicationContexts = new ConfigurableApplicationContext[length];
@@ -33,7 +33,7 @@ public class DispatcherServlet extends HttpServlet {
                         new String[]{contexts[i]},
                        applicationContexts[i]);
             }
-        }
+        }*/
 
         String webContextConfigLocation = getInitParameter
                 ("contextConfigLocation");
@@ -43,11 +43,10 @@ public class DispatcherServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request,
                                   HttpServletResponse response)
             throws ServletException, IOException {
-        String uri = request.getRequestURI();
-        String controllerName = getControllerName(uri);
+        HandlerMapping handlerMapping = webContext.getBean
+                ("handlerMappingStrategy", HandlerMapping.class);
 
-        MyController controller = webContext.getBean(controllerName,
-                MyController.class);
+        MyController controller = handlerMapping.getController(request);
 
         if (controller != null) {
             controller.handleRequest(request, response);
@@ -70,16 +69,12 @@ public class DispatcherServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-    private String getControllerName(String uri) {
-        return uri.substring(uri.lastIndexOf('/'));
-    }
-
     @Override
     public void destroy() {
-
+/*
         for (int i = applicationContexts.length - 1; i >= 0; i++) {
             applicationContexts[i].close();
-        }
+        }*/
 
         webContext.close();
     }

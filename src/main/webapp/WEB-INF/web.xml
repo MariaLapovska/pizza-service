@@ -6,16 +6,34 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
 
-    <context-param>
+  <!--  <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:/repoContext.xml</param-value>
         <param-value>classpath:/serviceContext.xml</param-value>
     </context-param>
 
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener> -->
+
+    <servlet>
+        <servlet-name>SpringRestDispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/RESTContext.xml</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpringRestDispatcherServlet</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>DispatcherServlet</servlet-name>
         <servlet-class>com.projects.pizzaservice.web.infrastructure.DispatcherServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>-1</load-on-startup>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>classpath:/webContext.xml</param-value>

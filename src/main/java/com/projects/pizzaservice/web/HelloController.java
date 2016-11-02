@@ -16,16 +16,16 @@ import java.io.PrintWriter;
  */
 @Controller("/hello")
 public class HelloController implements MyController {
-
+/*
     @Autowired
     private PizzaService pizzaService;
-
+*/
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse
             response) throws ServletException, IOException {
         try (PrintWriter out = response.getWriter()) {
             out.println("Hello from HelloServlet!");
-            out.println(pizzaService.findPizzaById(1));
+            //out.println(pizzaService.findPizzaById(1));
         }
     }
 }
