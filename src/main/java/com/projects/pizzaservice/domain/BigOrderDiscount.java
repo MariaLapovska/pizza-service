@@ -26,7 +26,9 @@ public class BigOrderDiscount implements Discount {
     }
 
     private Pizza getMostExpensivePizza(Order order) {
-        SortedSet<Pizza> sortedPizzas = new TreeSet<>((Pizza p1, Pizza p2) -> p1.getPrice().compareTo(p2.getPrice()));
+        SortedSet<Pizza> sortedPizzas = new TreeSet<>(
+                (Pizza p1, Pizza p2) -> p1.getPrice().compareTo(p2.getPrice())
+        );
         sortedPizzas.addAll(order.getPizzas().keySet());
 
         return sortedPizzas.last();
